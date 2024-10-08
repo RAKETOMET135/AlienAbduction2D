@@ -1,6 +1,9 @@
-const dataName = "alien_abduction_2d"
-const popUpText = document.querySelector("#pop-up")
 const body = document.body
+const popUpText = document.querySelector("#pop-up")
+const leftDoorText = document.querySelector("#left-door-text")
+const rightDoorText = document.querySelector("#right-door-text")
+const rooms = document.querySelector("#rooms")
+const dataName = "alien_abduction_2d"
 const images = "Images/"
 
 class Player{
@@ -22,6 +25,7 @@ class Player{
 
 let player = new Player()
 let playerCharacter = document.querySelector("#player")
+let currentRoom = 0
 
 function addItemToInventory(itemName){
     player.inventory.push(itemName)
@@ -103,6 +107,46 @@ function getNumberFromPixelString(pixelString){
     return number
 }
 
+function createRoom(){
+    let room = document.createElement("img")
+    room.src = images + "Hallway.png"
+    room.classList.add("room-default")
+    rooms.append(room)
+
+    room.style.left = "500px"
+    
+}
+
+function limitVerticalMovement(number){
+    if (number < 28) number = 28
+    if (number > 645) number = 645
+
+    return number
+}
+
+function limitHorizontalMovement(number){
+    if (number < 330) number = 330
+    if (number > 1520){
+        number = 1520
+
+        let playerCharacterStyle = window.getComputedStyle(playerCharacter)
+        let verticalPosition = getNumberFromPixelString(playerCharacterStyle.top)
+
+        if (verticalPosition > 220 && verticalPosition < 420){
+            changeRoom()
+        }
+    } 
+
+    return number
+}
+
+function changeRoom(){
+    currentRoom++
+
+    leftDoorText.innerText = currentRoom.toString()
+    rightDoorText.innerText = (currentRoom + 1).toString()
+}
+
 let idleAnimationFrame = 0
 let walkAnimationFrame = 0
 function animatePlayer(deltaTime){
@@ -134,14 +178,21 @@ function animatePlayer(deltaTime){
     idleAnimationFrame += deltaTime * 35
 }
 
+let lastRoom = 0
 function movePlayer(deltaTime){
     const horizontalMove = player.horizontalInput * player.speed * deltaTime
     const verticalMove = player.verticalInput * player.speed * deltaTime
 
     let playerCharacterStyle = window.getComputedStyle(playerCharacter)
 
-    playerCharacter.style.left = (getNumberFromPixelString(playerCharacterStyle.left) + horizontalMove) + "px"
-    playerCharacter.style.top = (getNumberFromPixelString(playerCharacterStyle.top) + verticalMove) + "px"
+    playerCharacter.style.left = limitHorizontalMovement((getNumberFromPixelString(playerCharacterStyle.left) + horizontalMove)) + "px"
+    playerCharacter.style.top = limitVerticalMovement((getNumberFromPixelString(playerCharacterStyle.top) + verticalMove)) + "px"
+
+    if (lastRoom != currentRoom){
+        lastRoom = currentRoom
+        playerCharacter.style.left = "375px"
+        playerCharacter.style.top = "400px"
+    }
 
     player.movement = Math.abs(horizontalMove) + Math.abs(verticalMove)
 }
@@ -149,6 +200,13 @@ function movePlayer(deltaTime){
 function onFrame(deltaTime){
     movePlayer(deltaTime)
     animatePlayer(deltaTime)
+}
+
+function settup(){
+    playerCharacter.style.left = "375px"
+    playerCharacter.style.top = "400px"
+
+    createRoom()
 }
 
 let updateTime = 0
@@ -162,4 +220,5 @@ function update(time){
 }
 body.addEventListener("keydown", keyDownEvent)
 body.addEventListener("keyup", keyUpEvent)
+settup()
 requestAnimationFrame(update)

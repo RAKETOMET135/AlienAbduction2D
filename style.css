@@ -12,3 +12,46 @@
     left: 0;
     right: 0;
 }
+
+.room-default{
+    position: absolute;
+    width: 1250px;
+    height: 750px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-10%, -50%);
+    z-index: -2;
+}
+
+.door{
+    position: absolute;
+    width: 250px;
+    z-index: -1;
+}
+.door-text{
+    position: absolute;
+    color: white;
+    font-weight: bold;
+}
+
+#left-door{
+    left: 150px;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+#left-door-text{
+    left: 270px;
+    top: 38.5%;
+    transform: translate(0%, -50%);
+}
+
+#right-door{
+    left: 1600px;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+#right-door-text{
+    left: 1720px;
+    top: 38.5%;
+    transform: translate(0%, -50%);
+}
