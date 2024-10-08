@@ -1,6 +1,7 @@
 const dataName = "alien_abduction_2d"
 const popUpText = document.querySelector("#pop-up")
 const body = document.body
+const images = "Images/"
 
 class Player{
     constructor(){
@@ -9,8 +10,13 @@ class Player{
         this.inventory = []
         this.horizontalInput = 0
         this.verticalInput = 0
+        this.movement = 0
+        this.direction = 1
         this.speed = 300
-        
+        this.walkLeft = ["MasterRun_0_left.png", "MasterRun_1_left.png", "MasterRun_2_left.png"]
+        this.walkRight = ["MasterRun_0.png", "MasterRun_1.png", "MasterRun_2.png"]
+        this.idleLeft = ["Me_0_left.png", "Me_1_left.png"]
+        this.idleRight = ["Me_0.png", "Me_1.png"]
     }
 }
 
@@ -65,9 +71,11 @@ function keyDownEvent(e){
     
     if (e.key == "a"){
         player.horizontalInput = -1
+        player.direction = -1
     }
     if (e.key == "d"){
         player.horizontalInput = 1
+        player.direction = 1
     }
 }
 
@@ -95,7 +103,38 @@ function getNumberFromPixelString(pixelString){
     return number
 }
 
-function onFrame(deltaTime){
+let idleAnimationFrame = 0
+let walkAnimationFrame = 0
+function animatePlayer(deltaTime){
+    if (walkAnimationFrame + 1 >= 15){
+        walkAnimationFrame = 0
+    }
+    if (idleAnimationFrame + 1 >= 10){
+        idleAnimationFrame = 0
+    }
+
+    if (player.movement == 0){
+        if (player.direction == 1){
+            playerCharacter.src = images + player.idleRight[Math.floor(idleAnimationFrame / 5)]
+        }
+        else{
+            playerCharacter.src = images + player.idleLeft[Math.floor(idleAnimationFrame / 5)]
+        }
+    }
+    else{
+        if (player.direction == 1){
+            playerCharacter.src = images + player.walkRight[Math.floor(walkAnimationFrame / 5)]
+        }
+        else{
+            playerCharacter.src = images + player.walkLeft[Math.floor(walkAnimationFrame / 5)]
+        }
+    }
+
+    walkAnimationFrame += deltaTime * 35
+    idleAnimationFrame += deltaTime * 35
+}
+
+function movePlayer(deltaTime){
     const horizontalMove = player.horizontalInput * player.speed * deltaTime
     const verticalMove = player.verticalInput * player.speed * deltaTime
 
@@ -103,6 +142,13 @@ function onFrame(deltaTime){
 
     playerCharacter.style.left = (getNumberFromPixelString(playerCharacterStyle.left) + horizontalMove) + "px"
     playerCharacter.style.top = (getNumberFromPixelString(playerCharacterStyle.top) + verticalMove) + "px"
+
+    player.movement = Math.abs(horizontalMove) + Math.abs(verticalMove)
+}
+
+function onFrame(deltaTime){
+    movePlayer(deltaTime)
+    animatePlayer(deltaTime)
 }
 
 let updateTime = 0
